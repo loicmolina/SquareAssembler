@@ -7,59 +7,94 @@ from tkinter import *
 from Modele.Tableau import tableau
 from Modele.dictionnaire import affectation
 
-'''
-    Instanciations
-'''
+                   
+#Fonctions
 
-taillecase = 30
-tab = tableau()
-couleurs = affectation()
-
-fenetre= Tk()
-
-'''
-    Fonctions
-
-'''
-
-
-def drawTable():    
+def drawTable():  
+    global canvasGame
+    global tab  
+    global couleurs  
     for i in range(tab.colonnes ):
-        for j in range(tab.lignes ):
-            canvas.create_rectangle(i* taillecase, j * taillecase, (i+1)* taillecase, (j+1) * taillecase, fill = couleurs.couleur(tab.tableau[i][j]))
+        for j in range(tab.lignes ):            
+            canvasGame.create_rectangle(1+i* taillecase, 1+j * taillecase,2+ (i+1)* taillecase,2+ (j+1) * taillecase , fill = couleurs.couleur(tab.tableau[i][j]))
 
-def newTable():
-    tab.randomize()
+
+
+
+def newTable(nb,popup):   
+    global taille     
+    global taillecase
+    canvasGame.delete("all")
+    tab.resize(nb) 
+    taillecase =  taille/nb
+    drawTable()
+    popup.destroy()
+    
+
+def cliqueGauche(event):    
+    x = int(event.x/taillecase)
+    y = int(event.y/taillecase)    
+    tab.find(x,y,tab.tableau[x][y],0)
+    tab.chutevertical()
+    tab.chutehorizontal()
     drawTable()
 
-'''
-    Ajout du menu
-'''
+        
+def selectionsize():    
+    popup = Toplevel()
+    popup.geometry("40x40+200+200")
+    bouton10=Button(popup, text="10 Cases", command= lambda:newTable(10,popup))
+    bouton10.pack(side =LEFT)
+    bouton20=Button(popup, text="20 Cases", command= lambda:newTable(20,popup))
+    bouton20.pack(side =RIGHT)
+    popup.mainloop()
+
+#Instanciations
+
+fenetre = Tk()
+fenetre.geometry("800x600+200+200")
+
+tab = tableau()
+taille = 600
+taillecase = taille / tab.lignes
+
+couleurs = affectation()
+
+canvasScore = Canvas(fenetre,width = 200, height = tab.lignes * taillecase, background = "black")
+canvasGame = Canvas(fenetre,width = tab.colonnes * taillecase, height = tab.lignes * taillecase, background = "white")
+
+canvasScore.pack(side=LEFT)
+canvasGame.pack(side=RIGHT)
+            
+
+#Création du tableau
 
 
 menubar = Menu(fenetre)
 fenetre.config(menu = menubar)
 
 menufichier = Menu(menubar,tearoff = 0)
+menuanonymat = Menu(menubar,tearoff = 0)
+
 menubar.add_cascade(label="Jeu", menu=menufichier)
-menufichier.add_command(label="Nouveau",command= newTable)
+
+menufichier.add_command(label="Nouveau", command = selectionsize)
 menufichier.add_command(label="Quitter", command=fenetre.destroy )
 
-
-menuanonymat = Menu(menubar,tearoff = 0)
 menubar.add_cascade(label="Numeros d'anonymat", menu=menuanonymat)
 menuanonymat.add_command(label="Molina Loïc")
 menuanonymat.add_command(label="Mattei Zav")
 
-'''
-    Création du tableau
-'''
+
+canvasGame.bind("<Button-1>", cliqueGauche)
 
 
+#Création du tableau
 
-canvas = Canvas(fenetre,width = tab.colonnes * taillecase, height = tab.lignes * taillecase, background = "white")
-
+    
 drawTable()       
 
-canvas.pack()
 fenetre.mainloop()
+
+
+
