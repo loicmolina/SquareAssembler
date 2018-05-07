@@ -5,7 +5,9 @@ Created on 6 mai 2018
 '''
 from tkinter import *
 from Modele.Tableau import tableau
-from Modele.dictionnaire import affectation
+from Modele.Dictionnaire import Affectation
+from _ctypes import alignment
+from tkinter.constants import CENTER
 
                    
 #Fonctions
@@ -19,8 +21,6 @@ def drawTable():
             canvasGame.create_rectangle(1+i* taillecase, 1+j * taillecase,2+ (i+1)* taillecase,2+ (j+1) * taillecase , fill = couleurs.couleur(tab.tableau[i][j]))
 
 
-
-
 def newTable(nb,popup):   
     global taille     
     global taillecase
@@ -28,47 +28,73 @@ def newTable(nb,popup):
     tab.resize(nb) 
     taillecase =  taille/nb
     drawTable()
+    scoring.config(text=tab.score)
     popup.destroy()
     
 
 def cliqueGauche(event):    
     x = int(event.x/taillecase)
-    y = int(event.y/taillecase)    
-    tab.find(x,y,tab.tableau[x][y],0)
+    y = int(event.y/taillecase)  
+    tour(x, y)  
+   
+    
+def tour(x,y):
+    global scoring
+    tab.find(x,y,tab.tableau[x][y])
+    
     tab.chutevertical()
     tab.chutehorizontal()
     drawTable()
+    
+    restant = tab.continuer()
+    scoring.config(text=tab.score)
+    if restant == 0:
+        fin()
+        
+        
+def fin():
+    popup = Toplevel()
+    popup.title("")
+    popup.geometry("200x50+200+200")
+    labelFin=Label(popup, text="Partie Terminée")
+    labelFin.pack()
+    popup.mainloop()
 
         
 def selectionsize():    
     popup = Toplevel()
+    popup.title("Nouveau")
     popup.geometry("40x40+200+200")
     bouton10=Button(popup, text="10 Cases", command= lambda:newTable(10,popup))
     bouton10.pack(side =LEFT)
     bouton20=Button(popup, text="20 Cases", command= lambda:newTable(20,popup))
     bouton20.pack(side =RIGHT)
     popup.mainloop()
+    
 
 #Instanciations
 
 fenetre = Tk()
+fenetre.title("Square Assembler")
 fenetre.geometry("800x600+200+200")
 
 tab = tableau()
 taille = 600
 taillecase = taille / tab.lignes
 
-couleurs = affectation()
+couleurs = Affectation()
 
-canvasScore = Canvas(fenetre,width = 200, height = tab.lignes * taillecase, background = "black")
+canvasScore = Canvas(fenetre,width = 200, height = tab.lignes * taillecase, background = "white")
 canvasGame = Canvas(fenetre,width = tab.colonnes * taillecase, height = tab.lignes * taillecase, background = "white")
 
 canvasScore.pack(side=LEFT)
 canvasGame.pack(side=RIGHT)
             
 
-#Création du tableau
+#Créations des menus
 
+scoring = Label(canvasScore,text=tab.score,font=("Impact",30))
+scoring.pack(anchor=CENTER)
 
 menubar = Menu(fenetre)
 fenetre.config(menu = menubar)

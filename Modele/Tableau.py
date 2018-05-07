@@ -5,15 +5,17 @@ Created on 6 mai 2018
 '''
 import random
 from random import randint
-from Modele.dictionnaire import affectation
+from Modele.Dictionnaire import Affectation
+import math
 
 class tableau:
     
     
     
     def __init__(self):
-        self.couleurs = affectation()
+        self.couleurs = Affectation()
         self.colonnes = 20
+        self.score = 0;
         self.lignes = 20  
         self.tableau = [[0 for x in range(self.colonnes)] for y in range(self.lignes)]
         
@@ -28,6 +30,7 @@ class tableau:
 
 
     def resize(self,nb):
+        self.score = 0
         self.colonnes = nb
         self.lignes = nb
         self.couleurs.setnbmax(nb)
@@ -38,49 +41,76 @@ class tableau:
                 liste = self.couleurs.couleurs()        
                 nbcouleur =  self.couleurs.select(liste, random.randint(0,liste.__len__()-1))
                 self.tableau[x][y]=nbcouleur
+                
         
-            
+    def find(self,x,y,valeur):
+        listMove = []
+        self.findrec(x,y,valeur,listMove)
+        resultat = listMove.__len__() 
+        if (resultat>=3):
+            self.score = self.score + resultat
+            self.clean(listMove)
+               
         
-    def find(self,x,y,valeur,profondeur):
+    def findrec(self,x,y,valeur,listMove):
         if (valeur > 0):
-            print(x,y)
-            if self.tableau[x][y] == valeur and profondeur>0:
-                self.tableau[x][y] = 0        
-           
-                if self.tableau[x-1][y] == valeur:
-                    self.find(x-1,y,valeur,profondeur+1) 
-            if x<self.lignes-1 :
-                if self.tableau[x+1][y] == valeur:
-                    self.find(x+1,y,valeur,profondeur+1) 
-            if y>0 :
-                if self.tableau[x][y-1] == valeur:
-                    self.find(x,y-1,valeur,profondeur+1) 
-            if y<self.colonnes-1 :
-                if self.tableau[x][y+1] == valeur:
-                    self.find(x,y+1,valeur,profondeur+1)  
+            listMove.insert(listMove.__len__(),[x,y])
+                              
+            if x>0 and self.tableau[x-1][y] == valeur and not [x-1,y] in listMove:
+                self.findrec(x-1,y,valeur,listMove) 
+            if x<self.lignes-1 and self.tableau[x+1][y] == valeur and not [x+1,y] in listMove:
+                self.findrec(x+1,y,valeur,listMove) 
+            if y>0 and self.tableau[x][y-1] == valeur and not [x,y-1] in listMove:
+                self.findrec(x,y-1,valeur,listMove) 
+            if y<self.colonnes-1 and self.tableau[x][y+1] == valeur and not [x,y+1] in listMove:
+                self.findrec(x,y+1,valeur,listMove) 
+        
             
-                  
+    def clean(self,listMove):
+        for i in range(listMove.__len__()):
+            self.tableau[listMove[i][0]][listMove[i][1]]=0      
+              
                   
     def chutevertical(self):
         for x in range(self.colonnes):
-                for y in range(self.lignes-1,0,-1):
-                    if (self.tableau[x][y] == 0):
-                        j = y-1
-                        while j>0 and self.tableau[x][j]==0 : 
-                            j = j-1                                                                   
-                        if (self.tableau[x][j]!=0):
-                                self.tableau[x][y]=self.tableau[x][j]
-                                self.tableau[x][j]=0            
+            for y in range(self.lignes-1,0,-1):
+                if (self.tableau[x][y] == 0):
+                    j = y-1
+                    while j>0 and self.tableau[x][j]==0 : 
+                        j = j-1                                                                   
+                    if (self.tableau[x][j]!=0):
+                            self.tableau[x][y]=self.tableau[x][j]
+                            self.tableau[x][j]=0            
                             
                        
     def chutehorizontal(self):
         for y in range(self.lignes):
-                for x in range(self.colonnes):
-                    if (self.tableau[x][y] == 0 and x<self.colonnes-1):
-                        j = x+1
-                        while j<self.colonnes-1 and self.tableau[j][y]==0 :                             
-                            print(j,y)
-                            j = j+1                                                                   
-                        if (self.tableau[j][y]!=0):
-                                self.tableau[x][y]=self.tableau[j][y]
-                                self.tableau[j][y]=0                         
+            for x in range(self.colonnes):
+                if (self.tableau[x][y] == 0 and x<self.colonnes-1):
+                    j = x+1
+                    while j<self.colonnes-1 and self.tableau[j][y]==0 :                             
+                        j = j+1                                                                   
+                    if (self.tableau[j][y]!=0):
+                            self.tableau[x][y]=self.tableau[j][y]
+                            self.tableau[j][y]=0         
+                            
+                            
+    def continuer(self):
+        restants = 0
+        for x in range(self.colonnes):
+            for y in range(self.lignes):
+                if (self.tableau[x][y] != 0):
+                    valeur = self.tableau[x][y]
+                    troisalasuite = 0
+                    if x>0 and self.tableau[x-1][y] == valeur:
+                        troisalasuite = troisalasuite + 1      
+                    if x<self.colonnes-1 and self.tableau[x+1][y] == valeur :
+                        troisalasuite = troisalasuite + 1    
+                    if y>0 and self.tableau[x][y-1] == valeur :
+                        troisalasuite = troisalasuite + 1                            
+                    if y<self.lignes-1 and self.tableau[x][y+1] == valeur :
+                        troisalasuite = troisalasuite + 1    
+                    if (troisalasuite>=2):
+                        restants = restants + 1
+        return restants
+                

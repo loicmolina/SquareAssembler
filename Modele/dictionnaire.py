@@ -4,7 +4,7 @@ Created on 6 mai 2018
 @author: Loic
 '''
 
-class affectation:
+class Affectation:
     def __init__(self):
         self.valeurs = {}
         self.valeurs[0]="white"
