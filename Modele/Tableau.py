@@ -84,15 +84,19 @@ class tableau:
                             
                        
     def chutehorizontal(self):
-        for y in range(self.lignes):
-            for x in range(self.colonnes):
-                if (self.tableau[x][y] == 0 and x<self.colonnes-1):
-                    j = x+1
-                    while j<self.colonnes-1 and self.tableau[j][y]==0 :                             
-                        j = j+1                                                                   
-                    if (self.tableau[j][y]!=0):
-                            self.tableau[x][y]=self.tableau[j][y]
-                            self.tableau[j][y]=0         
+        for i in range(self.colonnes):
+            if self.tableau[i][self.colonnes-1]==0:
+                x = i
+                while x<self.colonnes-1 and self.tableau[x][self.colonnes-1]==0 :
+                    x = x+1 
+                if (self.tableau[x][self.colonnes-1] != 0):
+                    for y in range(self.lignes):
+                        self.tableau[i][y] = self.tableau[x][y]
+                        self.tableau[x][y] = 0
+                        
+                
+                
+                    
                             
                             
     def continuer(self):

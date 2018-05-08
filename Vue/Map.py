@@ -6,8 +6,6 @@ Created on 6 mai 2018
 from tkinter import *
 from Modele.Tableau import tableau
 from Modele.Dictionnaire import Affectation
-from _ctypes import alignment
-from tkinter.constants import CENTER
 
                    
 #Fonctions
@@ -24,7 +22,10 @@ def drawTable():
 def newTable(nb,popup):   
     global taille     
     global taillecase
+    global restants
+    canvasGame.bind("<Button-1>", cliqueGauche)
     canvasGame.delete("all")
+    restants = 100
     tab.resize(nb) 
     taillecase =  taille/nb
     drawTable()
@@ -32,23 +33,25 @@ def newTable(nb,popup):
     popup.destroy()
     
 
-def cliqueGauche(event):    
-    x = int(event.x/taillecase)
-    y = int(event.y/taillecase)  
-    tour(x, y)  
+def cliqueGauche(event):   
+    if restants>0:  
+        x = int(event.x/taillecase)
+        y = int(event.y/taillecase)  
+        tour(x, y)  
    
     
 def tour(x,y):
     global scoring
+    global restants
     tab.find(x,y,tab.tableau[x][y])
     
     tab.chutevertical()
     tab.chutehorizontal()
     drawTable()
     
-    restant = tab.continuer()
+    restants = tab.continuer()
     scoring.config(text=tab.score)
-    if restant == 0:
+    if restants == 0:
         fin()
         
         
@@ -76,6 +79,7 @@ def selectionsize():
 
 fenetre = Tk()
 fenetre.title("Square Assembler")
+fenetre.resizable(False, False)
 fenetre.geometry("800x600+200+200")
 
 tab = tableau()
@@ -84,17 +88,25 @@ taillecase = taille / tab.lignes
 
 couleurs = Affectation()
 
-canvasScore = Canvas(fenetre,width = 200, height = tab.lignes * taillecase, background = "white")
-canvasGame = Canvas(fenetre,width = tab.colonnes * taillecase, height = tab.lignes * taillecase, background = "white")
+canvasScore = Canvas(fenetre,width = 180, height = tab.lignes * taillecase, bg = "black")
+canvasGame = Canvas(fenetre,width = tab.colonnes * taillecase, height = tab.lignes * taillecase, bg = "black")
 
-canvasScore.pack(side=LEFT)
+canvasScore.place(anchor=CENTER)
+canvasScore.config(highlightbackground="Black")
+
+canvasScore.pack(ipadx=10,side=LEFT)
 canvasGame.pack(side=RIGHT)
-            
+
+restants = 100
 
 #Créations des menus
 
-scoring = Label(canvasScore,text=tab.score,font=("Impact",30))
-scoring.pack(anchor=CENTER)
+titre = Label(canvasScore,text="SQUARE\n\nASSEMBLER\n",font=("Impact",28,"underline","bold"),bg="black",fg="white")
+titre.pack(side=TOP,ipady = 101)
+
+scoring = Label(canvasScore,text=tab.score,font=("Impact",25),bg="black",fg="white")
+scoring.pack(side=BOTTOM,ipady = 80)
+
 
 menubar = Menu(fenetre)
 fenetre.config(menu = menubar)
@@ -108,19 +120,11 @@ menufichier.add_command(label="Nouveau", command = selectionsize)
 menufichier.add_command(label="Quitter", command=fenetre.destroy )
 
 menubar.add_cascade(label="Numeros d'anonymat", menu=menuanonymat)
-menuanonymat.add_command(label="Molina Loïc")
-menuanonymat.add_command(label="Mattei Zav")
+menuanonymat.add_cascade(label="17820046")
+menuanonymat.add_cascade(label="178200 Mattei Zav")
 
 
-canvasGame.bind("<Button-1>", cliqueGauche)
-
-
-#Création du tableau
-
-    
-drawTable()       
+#Affichage de la fenêtre
+      
 
 fenetre.mainloop()
-
-
-
