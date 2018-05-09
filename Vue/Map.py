@@ -16,17 +16,36 @@ def drawTable():
             canvasGame.create_rectangle(1+i* jeu.taillecase, 1+j * jeu.taillecase,2+ (i+1)* jeu.taillecase,2+ (j+1) * jeu.taillecase , fill = jeu.couleurs.couleur(jeu.tab.tableau[i][j]))
 
 
+def drawColors():
+    global canvasScore
+    for i in range(jeu.joueur1.couleurs.__len__()):
+        canvasScore.create_rectangle(10,450+i*20+1,50,450+(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur1.couleurs[i])) 
+    
+    for i in range(jeu.joueur2.couleurs.__len__()):
+        canvasScore.create_rectangle(145,450+i*20+1,185,450+(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur2.couleurs[i])) 
+
 def start(nbCases,nbJoueurs,popup):  
-    if ((nbCases == 10 or nbCases == 20) and (nbJoueurs == 1 or nbJoueurs == 2)):
+    
+    if (nbCases != "" and nbJoueurs != ""):
         global jeu
-        jeu = Jeu(nbJoueurs)    
-        jeu.newTable(nbCases)  
+        global canvasScore
+        jeu = Jeu(int(nbJoueurs))    
+        jeu.newTable(int(nbCases))
         
-        labelplayer1.config(text = '>'+jeu.joueur1.nom)
-        labelplayer2.config(text = jeu.joueur2.nom)
+        canvasScore.delete("all")
         
-        scoring1.config(text = jeu.joueur1.score)
-        scoring2.config(text = jeu.joueur2.score)
+        if (jeu.nbjoueurs==2):
+            labelplayer1.config(text = '>'+jeu.joueur1.nom+'-',fg="white")
+            labelplayer2.config(text = jeu.joueur2.nom+'-',fg="white")
+            
+            scoring1.config(text = jeu.joueur1.score,fg="white")
+            scoring2.config(text = jeu.joueur2.score,fg="white")
+        else:
+            labelplayer1.config(text = '>'+jeu.joueur1.nom+'-',fg="white")
+            labelplayer2.config(fg= "black")
+            
+            scoring1.config(text = jeu.joueur1.score,fg="white")
+            scoring2.config(fg= "black")
         
         
         canvasGame.delete("all")
@@ -35,24 +54,26 @@ def start(nbCases,nbJoueurs,popup):
     
 
 def cliqueGauche(event):   
-    x = int(event.x/jeu.taillecase)
-    y = int(event.y/jeu.taillecase)  
-    jeu.tour(x, y)   
-    drawTable() 
-    updatescores()      
-    if jeu.gameover == 1 :
-        fin()
-            
+    if (jeu.gameover == 0):
+        x = int(event.x/jeu.taillecase)
+        y = int(event.y/jeu.taillecase)  
+        jeu.tour(x, y)   
+        drawTable() 
+        updatescoreboard() 
+        drawColors()     
+        if jeu.gameover == 1 :
+            fin()
+                
 
-def updatescores():
+def updatescoreboard():
     global scoring1
     scoring1.config(text = jeu.joueur1.score) 
     if jeu.joueurTour == jeu.joueur1:
-        labelplayer1.config(text = '>'+jeu.joueur1.nom)
-        labelplayer2.config(text = jeu.joueur2.nom)
+        labelplayer1.config(text = '>'+jeu.joueur1.nom+'-')
+        labelplayer2.config(text = jeu.joueur2.nom+'-')
     else:
-        labelplayer2.config(text = '>'+jeu.joueur2.nom)
-        labelplayer1.config(text = jeu.joueur1.nom)
+        labelplayer2.config(text = '>'+jeu.joueur2.nom+'-')
+        labelplayer1.config(text = jeu.joueur1.nom+'-')
      
     if(jeu.nbjoueurs == 2):
         global scoring2
@@ -60,13 +81,22 @@ def updatescores():
 
         
 def fin():
-    popup = Toplevel()
-    popup.title("")
-    popup.config(bg="red")
-    popup.geometry("200x50+400+400")
-    labelFin=Label(popup, bg="red",fg="black",font=("Impact",15),text="Partie Terminée")
-    labelFin.pack()
-    popup.mainloop()
+    global canvasGame
+    canvasGame.create_rectangle(100,200,500,400,fill="black")
+    canvasGame.create_text(300,250,font=("Impact",35,"bold"),text="Partie Terminée",fill="white")
+    if (jeu.nbjoueurs == 1):        
+        canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="Score final : "+ str(jeu.joueur1.score),fill="white")
+    else:
+        if (jeu.joueur1.score > jeu.joueur2.score):
+            canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+jeu.joueur1.nom,fill="white")
+        else:
+            if (jeu.joueur1.score < jeu.joueur2.score):                
+                canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+jeu.joueur2.nom,fill="white")
+            else:                
+                canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Egalité",fill="white")
+        canvasGame.create_text(300,360,font=("Impact",30,"bold"),text="Score final : "+str(jeu.joueur1.score)+" à "+str(jeu.joueur2.score),fill="white")
+        
+
 
         
 def selectionsize():    
@@ -83,8 +113,7 @@ def selectionsize():
     bouton10=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 10 ,text="10 Cases")
     bouton10.grid(row=1,column = 0,pady=10,ipadx=20,ipady=20)
     bouton20=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 20 , text="20 Cases")
-    bouton20.grid(row=1,column = 2,pady=10,ipadx=20,ipady=20)
-    
+    bouton20.grid(row=1,column = 2,pady=10,ipadx=20,ipady=20)    
     
     
     bouton1p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 1 , text="1 Joueur ")
@@ -93,7 +122,7 @@ def selectionsize():
     bouton2p.grid(row=2,column = 2,pady=10,ipadx=20,ipady=20)
     
      
-    valider=Button(popup, text="Valider", command= lambda:start(int(varTaille.get()),int(varJoueurs.get()),popup))
+    valider=Button(popup, text="Valider", command= lambda:start(varTaille.get(),varJoueurs.get(),popup))
     valider.grid(row=3,column = 1,pady=10,ipadx=25,ipady=15)
     popup.mainloop()
     
@@ -106,45 +135,39 @@ fenetre.resizable(False, False)
 fenetre.geometry("800x600+200+200")
 
     #Modele   
-jeu = Jeu(2)
-taille = 600
-taillecase = taille / jeu.tab.lignes
 
+jeu = Jeu(2)
     
     #Canvas
-canvasScore = Canvas(fenetre,width = 180, height = jeu.tab.lignes * taillecase, bg = "black")
-canvasGame = Canvas(fenetre,width = jeu.tab.colonnes * taillecase, height = jeu.tab.lignes * taillecase, bg = "black")
+canvasScore = Canvas(fenetre,width = 180, height = jeu.tab.lignes * jeu.taillecase, bg = "black")
+canvasGame = Canvas(fenetre,width = jeu.tab.colonnes * jeu.taillecase, height = jeu.tab.lignes * jeu.taillecase, bg = "white")
 
 canvasGame.bind("<Button-1>", cliqueGauche)
 
-canvasScore.place(anchor=CENTER)
+canvasScore.place()
 canvasScore.config(highlightbackground="Black")
 
-canvasScore.pack(ipadx=10,side=LEFT)
-canvasGame.pack(side=RIGHT)
 
-    #variable de fin
-restants = 100
+canvasGame.pack(side=RIGHT)
+canvasScore.pack(side=TOP,ipady = 200,ipadx = 100)
 
 #Créations des menus
 
 titre = Label(canvasScore,text="SQUARE\n\nASSEMBLER",font=("Impact",26,"bold"),bg="black",fg="white")
-titre.pack(side=TOP,ipady = 120)
+titre.pack(side=TOP,ipady = 50)
 
-labelplayer1 = Label(canvasScore,text=jeu.joueur1.nom,font=("Impact",20),bg="black",fg="white")
-scoring1 = Label(canvasScore,text=jeu.joueur1.score,font=("Impact",20),bg="black",fg="white")
+labelplayer1 = Label(canvasScore,text=jeu.joueur1.nom+'-',font=("Impact",20),bg="black",fg="black")
+scoring1 = Label(canvasScore,text=jeu.joueur1.score,font=("Impact",20),bg="black",fg="black")
 
-if(jeu.nbjoueurs == 2):
-    labelplayer1.pack(side=LEFT,ipady = 90)
-    scoring1.pack(side=LEFT,ipady = 90)
-    
-    labelplayer2 = Label(canvasScore,text=jeu.joueur2.nom,font=("Impact",20),bg="black",fg="white")
-    scoring2 = Label(canvasScore,text=jeu.joueur2.score,font=("Impact",20),bg="black",fg="white")
 
-    scoring2.pack(side=RIGHT,ipady = 90)
-    labelplayer2.pack(side=RIGHT,ipady = 90)
-else:
-    scoring1.pack(side=BOTTOM,ipady = 80)
+labelplayer1.pack(side=LEFT)
+scoring1.pack(side=LEFT)
+
+labelplayer2 = Label(canvasScore,text=jeu.joueur2.nom+'-',font=("Impact",20),bg="black",fg="black")
+scoring2 = Label(canvasScore,text=jeu.joueur2.score,font=("Impact",20),bg="black",fg="black")
+
+scoring2.pack(side=RIGHT)
+labelplayer2.pack(side=RIGHT)
     
 
 
@@ -159,7 +182,7 @@ menubar.add_cascade(label="Jeu", menu=menufichier)
 menufichier.add_command(label="Nouveau", command = selectionsize)
 menufichier.add_command(label="Quitter", command=fenetre.destroy )
 
-menubar.add_cascade(label="Numeros d'anonymat", menu=menuanonymat)
+menubar.add_cascade(label="A propos", menu=menuanonymat)
 menuanonymat.add_cascade(label="17820046")
 menuanonymat.add_cascade(label="17820047")
 

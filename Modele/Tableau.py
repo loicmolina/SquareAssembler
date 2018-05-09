@@ -43,12 +43,10 @@ class tableau:
     def find(self,x,y,valeur):
         listMove = []
         self.findrec(x,y,valeur,listMove)
-        resultat = listMove.__len__() 
-        if (resultat>=3):            
-            self.clean(listMove)
-            return resultat
+        if (listMove.__len__() >=3):       
+            return listMove
         else:
-            return 0
+            return []
                
         
     def findrec(self,x,y,valeur,listMove):
