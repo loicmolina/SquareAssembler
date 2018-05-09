@@ -6,7 +6,6 @@ Created on 6 mai 2018
 import random
 from random import randint
 from Modele.Dictionnaire import Affectation
-import math
 
 class tableau:
     
@@ -15,7 +14,6 @@ class tableau:
     def __init__(self):
         self.couleurs = Affectation()
         self.colonnes = 20
-        self.score = 0;
         self.lignes = 20  
         self.tableau = [[0 for x in range(self.colonnes)] for y in range(self.lignes)]
         
@@ -30,7 +28,6 @@ class tableau:
 
 
     def resize(self,nb):
-        self.score = 0
         self.colonnes = nb
         self.lignes = nb
         self.couleurs.setnbmax(nb)
@@ -47,9 +44,11 @@ class tableau:
         listMove = []
         self.findrec(x,y,valeur,listMove)
         resultat = listMove.__len__() 
-        if (resultat>=3):
-            self.score = self.score + resultat
+        if (resultat>=3):            
             self.clean(listMove)
+            return resultat
+        else:
+            return 0
                
         
     def findrec(self,x,y,valeur,listMove):
@@ -94,8 +93,7 @@ class tableau:
                         self.tableau[i][y] = self.tableau[x][y]
                         self.tableau[x][y] = 0
                         
-                
-                
+        
                     
                             
                             
@@ -104,6 +102,25 @@ class tableau:
         for x in range(self.colonnes):
             for y in range(self.lignes):
                 if (self.tableau[x][y] != 0):
+                    valeur = self.tableau[x][y]
+                    troisalasuite = 0
+                    if x>0 and self.tableau[x-1][y] == valeur:
+                        troisalasuite = troisalasuite + 1      
+                    if x<self.colonnes-1 and self.tableau[x+1][y] == valeur :
+                        troisalasuite = troisalasuite + 1    
+                    if y>0 and self.tableau[x][y-1] == valeur :
+                        troisalasuite = troisalasuite + 1                            
+                    if y<self.lignes-1 and self.tableau[x][y+1] == valeur :
+                        troisalasuite = troisalasuite + 1    
+                    if (troisalasuite>=2):
+                        restants = restants + 1
+        return restants
+    
+    def continuerjoueur(self,couleurs):
+        restants = 0
+        for x in range(self.colonnes):
+            for y in range(self.lignes):
+                if (self.tableau[x][y] in couleurs):
                     valeur = self.tableau[x][y]
                     troisalasuite = 0
                     if x>0 and self.tableau[x-1][y] == valeur:
