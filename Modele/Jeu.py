@@ -9,13 +9,13 @@ from Modele.Joueur import Joueur
 from Modele.Dictionnaire import Affectation
 
 class Jeu:
-    def __init__(self,nbJoueurs):
+    def __init__(self,nbJoueurs,tempsMaxTour):
         self.tab = tableau()
         self.gameover = 1        
         self.joueur1 = Joueur("J1",1)
         self.joueur2 = Joueur("J2",2)
         self.nbjoueurs = nbJoueurs
-        self.tempsTourMax = 10
+        self.tempsTourMax = tempsMaxTour
         self.tempsTour = self.tempsTourMax
         self.joueurTour = self.joueur1 #Le joueur 1 commence
         self.joueurAdverse = self.joueur2

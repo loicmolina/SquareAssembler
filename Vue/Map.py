@@ -20,20 +20,24 @@ def drawTable():
 def drawColors():
     global canvasScore
     for i in range(jeu.joueur1.couleurs.__len__()):
-        canvasScore.create_rectangle(10,450+i*20+1,50,450+(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur1.couleurs[i])) 
+        canvasScore.create_rectangle(10,450-i*20+1,50,450-(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur1.couleurs[i])) 
     
     for i in range(jeu.joueur2.couleurs.__len__()):
-        canvasScore.create_rectangle(145,450+i*20+1,185,450+(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur2.couleurs[i])) 
+        canvasScore.create_rectangle(145,450-i*20+1,185,450-(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur2.couleurs[i])) 
         
 
-def start(nbCases,nbJoueurs,popup):  
+def start(nbCases,nbJoueurs,tempsTour,popup):  
+    try:
+        tps = int(tempsTour)
+    except:
+        tps = 0
     
-    if (nbCases != "" and nbJoueurs != ""):
+    if (nbCases != "" and nbJoueurs != "" and (nbJoueurs=="1" or tps>2)):
         global jeu
         global canvasScore
         global nbpartie        
         
-        jeu = Jeu(int(nbJoueurs))   
+        jeu = Jeu(int(nbJoueurs),tps)   
         jeu.newTable(int(nbCases))
         nbpartie = nbpartie +1
         
@@ -116,6 +120,8 @@ def decrementetemps(idpartie):
         
 def fin():
     global canvasGame
+    global nbpartie
+    nbpartie = nbpartie +1
     canvasGame.create_rectangle(100,200,500,400,fill="black")
     canvasGame.create_text(300,250,font=("Impact",35,"bold"),text="Partie Terminée",fill="white")
     if (jeu.nbjoueurs == 1):        
@@ -135,14 +141,13 @@ def fin():
 def selectionsize():    
     popup = Toplevel()
     popup.title("Nouveau")
-    popup.geometry("350x270+200+200")
+    popup.geometry("380x330+200+200")
     
     texte = Label(popup,text="Choix des détails de la partie")
     texte.grid(row=0,column = 1,pady=10)
     
     varTaille = StringVar()
     varJoueurs = StringVar()
-    #varTemps = IntVar()
     
     bouton10=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 10 ,text="10 Cases")
     bouton10.grid(row=1,column = 0,pady=10,ipadx=20,ipady=20)
@@ -155,9 +160,13 @@ def selectionsize():
     bouton2p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 2, text="2 Joueurs")
     bouton2p.grid(row=2,column = 2,pady=10,ipadx=20,ipady=20)
     
+    labelTemps = Label(popup,text="Temps pour chaque tour (en sec) :\n(Mode 2 Joueurs, Supérieur à 2sec)")
+    labelTemps.grid(row=3,column=1)
+    entryTemps = Entry(popup)
+    entryTemps.grid(row=4,column=1)
 
-    valider=Button(popup, text="Valider", command= lambda:start(varTaille.get(),varJoueurs.get(),popup))
-    valider.grid(row=3,column = 1,pady=10,ipadx=25,ipady=15)
+    valider=Button(popup, text="Valider", command= lambda:start(varTaille.get(),varJoueurs.get(),entryTemps.get(),popup))
+    valider.grid(row=5,column = 1,pady=10,ipadx=25,ipady=15)
     popup.mainloop()
     
     
@@ -172,7 +181,7 @@ fenetre.geometry("800x600+200+200")
     #Modele   
 nbpartie = 0
 
-jeu = Jeu(2)
+jeu = Jeu(2,10)
     
     #Canvas
 canvasScore = Canvas(fenetre,width = 180, height = jeu.tab.lignes * jeu.taillecase, bg = "black")
