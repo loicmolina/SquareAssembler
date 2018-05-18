@@ -11,10 +11,12 @@ from Modele.Dictionnaire import Affectation
 class Jeu:
     def __init__(self,nbJoueurs):
         self.tab = tableau()
-        self.gameover = 1
+        self.gameover = 1        
         self.joueur1 = Joueur("J1",1)
         self.joueur2 = Joueur("J2",2)
         self.nbjoueurs = nbJoueurs
+        self.tempsTourMax = 10
+        self.tempsTour = self.tempsTourMax
         self.joueurTour = self.joueur1 #Le joueur 1 commence
         self.joueurAdverse = self.joueur2
         self.couleurs = Affectation()
@@ -32,23 +34,25 @@ class Jeu:
         self.joueurTour.restants = 100
         self.joueurAdverse.restants = 100
         self.joueur1.score = 0
-        self.joueur2.score = 0
+        self.joueur2.score = 0          
         
         
     def tour(self,x,y):
         listeCases = self.tab.find(x,y,self.tab.tableau[x][y])
-        if listeCases.__len__()>=3:
+        if listeCases.__len__()>=3:            
+            
             if self.nbjoueurs==2 and self.tab.tableau[x][y]>0 and self.joueurTour.couleurs.__len__() < self.tab.lignes/5 and self.tab.tableau[x][y] not in self.joueur1.couleurs and self.tab.tableau[x][y] not in self.joueur2.couleurs :
                 self.joueurTour.couleurs.insert(self.joueurTour.couleurs.__len__(), self.tab.tableau[x][y])
             
             if self.nbjoueurs == 1 or self.tab.tableau[x][y] in self.joueurTour.couleurs:
+                self.tempsTour = self.tempsTourMax
                 self.tab.clean(listeCases)
                 self.joueurTour.score = self.joueurTour.score + listeCases.__len__()              
                 self.tab.chutevertical()
                 self.tab.chutehorizontal()
-                self.conditionsfin()
-                
-                
+                self.conditionsfin()     
+
+                        
                 
     def conditionsfin(self):
         if self.nbjoueurs==1:
@@ -72,8 +76,7 @@ class Jeu:
                 #print("au tour de ",self.joueurTour.nom," ses couleurs sont ",self.joueurTour.couleurs)
                 #print("l'adversaire ",self.joueurAdverse.nom," ses couleurs sont ",self.joueurAdverse.couleurs)
         
-               
-                
+            
                 
 
 
