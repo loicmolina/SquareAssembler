@@ -40,8 +40,8 @@ class connection:
                 self.sendmsg("size:"+str(self.modele.jeu.tab.colonnes))
                 self.sendmsg("tab:"+str(self.modele.jeu.tab.tableau))
                 self.sendmsg("time:"+str(self.modele.jeu.tempsTourMax)+","+str(self.modele.jeu.tempsTour))
-                self.modele.render()
                 self.modele.readyplayer2()
+                self.modele.render()
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
         self.info('Ivy applications currently on the bus: %s',','.join(IvyGetApplicationList()))
@@ -62,8 +62,7 @@ class connection:
             self.modele.jeu.newTable(int(str(arg)[7:-3]))
         elif ("tab:" in str(arg) and self.IVYAPPNAME == 'Guest'):
             #print("tab reçu : "+str(arg)[8:-5])     
-            self.modele.jeu.joinTable(str(arg)[8:-5])   
-            self.modele.render()    
+            self.modele.jeu.joinTable(str(arg)[8:-5])     
         elif ("time:" in str(arg) and self.IVYAPPNAME == 'Guest'):
             timers = str(arg)[7:-3].split(",")
             #print("temps reçu : "+ timers[0])      

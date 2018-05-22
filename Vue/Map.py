@@ -112,8 +112,6 @@ class Vue:
             tps = int(tempsTour)
         except:
             tps = 0
-    
-            
         
         if (nbCases != "" and nbJoueurs != "" and (nbJoueurs=="1" or tps>2)):     
             
@@ -177,16 +175,16 @@ class Vue:
             self.labeltimeleft.config(text=self.jeu.tempsTour)
             
             
+            
     def horloge(self,idpartie):
         self.fenetre.after(1000, lambda: self.decrementetemps(idpartie))
         
+        
     #fonction de mise à jour de l'affichage pour le joueur qui ne joue pas actuellement    
     def render(self):    
-        if (self.jeu.gameover==0 ):
-            self.drawTable()
-            self.drawColors()
-
-        else:
+        self.drawTable()
+        self.drawColors()
+        if (self.jeu.gameover==1 ):
             self.fin()
     
     
@@ -256,7 +254,6 @@ class Vue:
         
         
     def readyplayer2(self): 
-        self.drawTable()      
         self.horloge(self.nbpartie)
         
         
