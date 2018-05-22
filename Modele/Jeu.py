@@ -11,7 +11,7 @@ from Modele.Dictionnaire import Affectation
 class Jeu:
     def __init__(self,nbJoueurs,tempsMaxTour):
         self.tab = tableau()
-        self.gameover = 1        
+        self.gameover = 1  
         self.joueur1 = Joueur("J1",1)
         self.joueur2 = Joueur("J2",2)
         self.nbjoueurs = nbJoueurs
@@ -26,6 +26,9 @@ class Jeu:
         self.taillecase = 600/self.tab.lignes
     
 
+    def joinTable(self,tablestr): 
+        self.tab.settable(tablestr)
+        
 
     def newTable(self,nb):   
         self.gameover = 0
@@ -34,8 +37,12 @@ class Jeu:
         self.joueurTour.restants = 100
         self.joueurAdverse.restants = 100
         self.joueur1.score = 0
-        self.joueur2.score = 0          
+        self.joueur2.score = 0        
         
+        
+    def setTime(self,tpsM,tpsT):
+        self.tempsTourMax = tpsM
+        self.tempsTour = tpsT 
         
     def tour(self,x,y):
         listeCases = self.tab.find(x,y,self.tab.tableau[x][y])

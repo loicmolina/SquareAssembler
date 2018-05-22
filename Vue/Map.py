@@ -6,238 +6,280 @@ Created on 6 mai 2018
 from tkinter import *
 from Modele.Jeu import Jeu
 import time
+from Ivy.Connect import connection
 
 
 #Fonctions
-
-def drawTable():  
-    global canvasGame
-    for i in range(jeu.tab.colonnes ):
-        for j in range(jeu.tab.lignes ):            
-            canvasGame.create_rectangle(1+i* jeu.taillecase, 1+j * jeu.taillecase,2+ (i+1)* jeu.taillecase,2+ (j+1) * jeu.taillecase , fill = jeu.couleurs.couleur(jeu.tab.tableau[i][j]))
-
-
-def drawColors():
-    global canvasScore
-    for i in range(jeu.joueur1.couleurs.__len__()):
-        canvasScore.create_rectangle(10,450-i*20+1,50,450-(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur1.couleurs[i])) 
-    
-    for i in range(jeu.joueur2.couleurs.__len__()):
-        canvasScore.create_rectangle(145,450-i*20+1,185,450-(i+1)*20, fill =jeu.couleurs.couleur(jeu.joueur2.couleurs[i])) 
-        
-
-def start(nbCases,nbJoueurs,tempsTour,popup):  
-    try:
-        tps = int(tempsTour)
-    except:
-        tps = 0
-    
-    if (nbCases != "" and nbJoueurs != "" and (nbJoueurs=="1" or tps>2)):
-        global jeu
-        global canvasScore
-        global nbpartie        
-        
-        jeu = Jeu(int(nbJoueurs),tps)   
-        jeu.newTable(int(nbCases))
-        nbpartie = nbpartie +1
-        
-        canvasScore.delete("all")
-        
-        if (jeu.nbjoueurs==2):
-            labelplayer1.config(text = '>'+jeu.joueur1.nom+'-',fg="white")
-            labelplayer2.config(text = jeu.joueur2.nom+'-',fg="white")
+class Vue:
+    def __init__(self):
             
-            scoring1.config(text = jeu.joueur1.score,fg="white")
-            scoring2.config(text = jeu.joueur2.score,fg="white")            
+        #Instanciations
+            #fenetre
+        self.fenetre = Tk()
+        self.fenetre.title("Square Assembler")
+        self.fenetre.resizable(False, False)
+        self.fenetre.geometry("800x600+200+200")
+        
+            #Modele   
+        self.nbpartie = 0
+        
+        self.jeu = Jeu(1,10)
+        
+            #Canvas
+        self.canvasScore = Canvas(self.fenetre,width = 180, height = self.jeu.tab.lignes * self.jeu.taillecase, bg = "black")
+        self.canvasGame = Canvas(self.fenetre,width = self.jeu.tab.colonnes * self.jeu.taillecase, height = self.jeu.tab.lignes * self.jeu.taillecase, bg = "white")
+        
+        self.canvasGame.bind("<Button-1>", self.cliqueGauche)
+        
+        self.canvasScore.place()
+        self.canvasScore.config(highlightbackground="Black")
+        
+        
+        self.canvasGame.pack(side=RIGHT)
+        self.canvasScore.pack(side=TOP,ipady = 100,ipadx = 100)
+        
+        #Créations des labels
+        
+        self.titre = Label(self.canvasScore,text="SQUARE\n\nASSEMBLER",font=("Impact",26,"bold"),bg="black",fg="white")
+        self.titre.pack(side=TOP,ipady = 100)
+        
+        self.labeltimeleft = Label(self.canvasScore,text=self.jeu.tempsTour ,font=("Impact",30),bg="black",fg="black")
+        self.labeltimeleft.pack(side=TOP)
+        
+        self.labelplayer1 = Label(self.canvasScore,text=self.jeu.joueur1.nom+'-',font=("Impact",20),bg="black",fg="black")
+        self.scoring1 = Label(self.canvasScore,text=self.jeu.joueur1.score,font=("Impact",20),bg="black",fg="black")
+        
+        self.labelplayer1.pack(side=LEFT)
+        self.scoring1.pack(side=LEFT)
+        
+        self.labelplayer2 = Label(self.canvasScore,text=self.jeu.joueur2.nom+'-',font=("Impact",20),bg="black",fg="black")
+        self.scoring2 = Label(self.canvasScore,text=self.jeu.joueur2.score,font=("Impact",20),bg="black",fg="black")
+        
+        self.scoring2.pack(side=RIGHT)
+        self.labelplayer2.pack(side=RIGHT)
+        
+        
+        
+        #Créations des menus
+        
+        self.menubar = Menu(self.fenetre)
+        self.fenetre.config(menu = self.menubar)
+        
+        self.menufichier = Menu(self.menubar,tearoff = 0)
+        self.menuanonymat = Menu(self.menubar,tearoff = 0)
+        
+        self.menubar.add_cascade(label="Jeu", menu=self.menufichier)
+        
+        self.menufichier.add_command(label="Nouveau", command = self.selectionsize)
+        self.menufichier.add_command(label="Rejoindre", command=self.joinRoom)
+        self.menufichier.add_command(label="Quitter", command=self.stop )
+        
+        self.menubar.add_cascade(label="A propos", menu=self.menuanonymat)
+        self.menuanonymat.add_cascade(label="17820046")
+        self.menuanonymat.add_cascade(label="17820047")
+        
+        
+        #Affichage de la fenêtre
+        
+        self.c = connection(self)
+    
+    
+    
+    
+    def drawTable(self):  
+        self.canvasGame.delete("all")
+        for i in range(self.jeu.tab.colonnes ):
+            for j in range(self.jeu.tab.lignes ):            
+                self.canvasGame.create_rectangle(1+i* self.jeu.taillecase, 1+j * self.jeu.taillecase,2+ (i+1)* self.jeu.taillecase,2+ (j+1) * self.jeu.taillecase , fill = self.jeu.couleurs.couleur(self.jeu.tab.tableau[i][j]))
+    
+    
+    def drawColors(self):
+        self.canvasScore.delete("all")
+        for i in range(self.jeu.joueur1.couleurs.__len__()):
+            self.canvasScore.create_rectangle(10,450-i*20+1,30,450-(i+1)*20, fill =self.jeu.couleurs.couleur(self.jeu.joueur1.couleurs[i])) 
+        
+        for i in range(self.jeu.joueur2.couleurs.__len__()):
+            self.canvasScore.create_rectangle(145,450-i*20+1,165,450-(i+1)*20, fill = self.jeu.couleurs.couleur(self.jeu.joueur2.couleurs[i])) 
             
-            labeltimeleft.config(fg="white")
-
-            horloge(nbpartie)
+    
+    def drawWaitingForPlayer2(self):
+        self.canvasGame.create_rectangle(100,200,500,400,fill="black")
+        self.canvasGame.create_text(300,250,font=("Impact",30,"bold"),text="Recherche du Joueur 2",fill="white")      
+        self.canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="En attente...",fill="white")
+    
+    def start(self,nbCases,nbJoueurs,tempsTour,popup):  
+        try:
+            tps = int(tempsTour)
+        except:
+            tps = 0
+    
+            
+        
+        if (nbCases != "" and nbJoueurs != "" and (nbJoueurs=="1" or tps>2)):     
+            
+            self.jeu = Jeu(int(nbJoueurs),tps)   
+            self.jeu.newTable(int(nbCases))
+            self.nbpartie = self.nbpartie +1        
+            
+            
+            
+            if (self.jeu.nbjoueurs==2):            
+                self.createRoom()            
+                self.drawWaitingForPlayer2()
+                
+                self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
+                self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
+                
+                self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
+                self.scoring2.config(text = self.jeu.joueur2.score,fg="white")            
+                
+                self.labeltimeleft.config(fg="white",text=tempsTour)
+            else:
+                self.c.stop()
+                self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
+                self.labelplayer2.config(fg= "black")
+                
+                self.labeltimeleft.config(fg="black")
+                
+                self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
+                self.scoring2.config(fg= "black")
+            
+            popup.destroy()
+            
+            
+    
+    def cliqueGauche(self,event):   
+        if (self.jeu.gameover == 0 and (self.jeu.nbjoueurs==1 or((self.c.IVYAPPNAME == 'Guest' and self.jeu.joueurTour==self.jeu.joueur2) or (self.c.IVYAPPNAME == 'Host' and self.jeu.joueurTour==self.jeu.joueur1)))):
+            x = int(event.x/self.jeu.taillecase)
+            y = int(event.y/self.jeu.taillecase) 
+            if (self.jeu.nbjoueurs == 2):
+                self.c.sendmsg("coup:"+str(x)+","+str(y)) 
+            self.jeu.tour(x, y)   
+            self.drawTable() 
+            self.drawColors()    
+            self.updatescoreboard()  
+        if self.jeu.gameover == 1 :
+            self.fin()
+    
+    
+    
+    def updatescoreboard(self):
+        self.scoring1.config(text = self.jeu.joueur1.score) 
+        if self.jeu.joueurTour == self.jeu.joueur1:
+            self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-')
+            self.labelplayer2.config(text = self.jeu.joueur2.nom+'-')
         else:
-            labelplayer1.config(text = '>'+jeu.joueur1.nom+'-',fg="white")
-            labelplayer2.config(fg= "black")
+            self.labelplayer2.config(text = '>'+self.jeu.joueur2.nom+'-')
+            self.labelplayer1.config(text = self.jeu.joueur1.nom+'-')
+         
+        if(self.jeu.nbjoueurs == 2):
+            self.scoring2.config(text = self.jeu.joueur2.score)
+            self.labeltimeleft.config(text=self.jeu.tempsTour)
             
-            labeltimeleft.config(fg="black")
             
-            scoring1.config(text = jeu.joueur1.score,fg="white")
-            scoring2.config(fg= "black")
+    def horloge(self,idpartie):
+        self.fenetre.after(1000, lambda: self.decrementetemps(idpartie))
         
-        
-        canvasGame.delete("all")
-        popup.destroy()
-        updatescoreboard()
-        drawTable()
-        
-        
+    #fonction de mise à jour de l'affichage pour le joueur qui ne joue pas actuellement    
+    def render(self):    
+        if (self.jeu.gameover==0 ):
+            self.drawTable()
+            self.drawColors()
 
-def cliqueGauche(event):   
-    if (jeu.gameover == 0):
-        x = int(event.x/jeu.taillecase)
-        y = int(event.y/jeu.taillecase)  
-        jeu.tour(x, y)   
-        drawTable() 
-        updatescoreboard() 
-        drawColors()     
-        if jeu.gameover == 1 :
-            fin()
-            
-
-
-def updatescoreboard():
-    global scoring1
-    global scoring2
-    global labelplayer1
-    global labelplayer2
-    scoring1.config(text = jeu.joueur1.score) 
-    if jeu.joueurTour == jeu.joueur1:
-        labelplayer1.config(text = '>'+jeu.joueur1.nom+'-')
-        labelplayer2.config(text = jeu.joueur2.nom+'-')
-    else:
-        labelplayer2.config(text = '>'+jeu.joueur2.nom+'-')
-        labelplayer1.config(text = jeu.joueur1.nom+'-')
-     
-    if(jeu.nbjoueurs == 2):
-        global scoring2
-        global labeltimeleft
-        scoring2.config(text = jeu.joueur2.score)
-        labeltimeleft.config(text=jeu.tempsTour)
-        
-        
-def horloge(idpartie):
-    fenetre.after(1000, lambda: decrementetemps(idpartie))
-
-
-def decrementetemps(idpartie):  
-    if (idpartie == nbpartie):
-        horloge(idpartie)    
-        jeu.tempsTour = jeu.tempsTour - 1        
-        if (jeu.tempsTour == 0):
-            jeu.conditionsfin()
-            jeu.tempsTour = jeu.tempsTourMax
-        
-        updatescoreboard()
-    
-        
-def fin():
-    global canvasGame
-    global nbpartie
-    nbpartie = nbpartie +1
-    canvasGame.create_rectangle(100,200,500,400,fill="black")
-    canvasGame.create_text(300,250,font=("Impact",35,"bold"),text="Partie Terminée",fill="white")
-    if (jeu.nbjoueurs == 1):        
-        canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="Score final : "+ str(jeu.joueur1.score),fill="white")
-    else:
-        if (jeu.joueur1.score > jeu.joueur2.score):
-            canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+jeu.joueur1.nom,fill="white")
         else:
-            if (jeu.joueur1.score < jeu.joueur2.score):                
-                canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+jeu.joueur2.nom,fill="white")
-            else:                
-                canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Egalité",fill="white")
-        canvasGame.create_text(300,360,font=("Impact",30,"bold"),text="Score final : "+str(jeu.joueur1.score)+" à "+str(jeu.joueur2.score),fill="white")
-
-
+            self.fin()
+    
+    
+    def decrementetemps(self,idpartie):  
+        if (idpartie == self.nbpartie):
+            self.horloge(idpartie)    
+            self.jeu.tempsTour -= 1       
+            if (self.jeu.tempsTour == 0):
+                self.jeu.conditionsfin()
+                self.jeu.tempsTour = self.jeu.tempsTourMax
+            
+            self.updatescoreboard()
         
-def selectionsize():    
-    popup = Toplevel()
-    popup.title("Nouveau")
-    popup.geometry("380x330+200+200")
-    
-    texte = Label(popup,text="Choix des détails de la partie")
-    texte.grid(row=0,column = 1,pady=10)
-    
-    varTaille = StringVar()
-    varJoueurs = StringVar()
-    
-    bouton10=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 10 ,text="10 Cases")
-    bouton10.grid(row=1,column = 0,pady=10,ipadx=20,ipady=20)
-    bouton20=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 20 , text="20 Cases")
-    bouton20.grid(row=1,column = 2,pady=10,ipadx=20,ipady=20)    
-    
-    
-    bouton1p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 1 , text="1 Joueur ")
-    bouton1p.grid(row=2,column = 0,pady=10,ipadx=20,ipady=20)
-    bouton2p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 2, text="2 Joueurs")
-    bouton2p.grid(row=2,column = 2,pady=10,ipadx=20,ipady=20)
-    
-    labelTemps = Label(popup,text="Temps pour chaque tour (en sec) :\n(Mode 2 Joueurs, Supérieur à 2sec)")
-    labelTemps.grid(row=3,column=1)
-    entryTemps = Entry(popup)
-    entryTemps.grid(row=4,column=1)
-
-    valider=Button(popup, text="Valider", command= lambda:start(varTaille.get(),varJoueurs.get(),entryTemps.get(),popup))
-    valider.grid(row=5,column = 1,pady=10,ipadx=25,ipady=15)
-    popup.mainloop()
+            
+    def fin(self):
+        self.nbpartie += 1
+        self.canvasGame.create_rectangle(100,200,500,400,fill="black")
+        self.canvasGame.create_text(300,250,font=("Impact",35,"bold"),text="Partie Terminée",fill="white")
+        if (self.jeu.nbjoueurs == 1):        
+            self.canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="Score final : "+ str(self.jeu.joueur1.score),fill="white")
+        else:
+            if (self.jeu.joueur1.score > self.jeu.joueur2.score):
+                self.canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+self.jeu.joueur1.nom,fill="white")
+            else:
+                if (self.jeu.joueur1.score < self.jeu.joueur2.score):                
+                    self.canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Gagnant : "+self.jeu.joueur2.nom,fill="white")
+                else:                
+                    self.canvasGame.create_text(300,310,font=("Impact",30,"bold"),text="Egalité",fill="white")
+            self.canvasGame.create_text(300,360,font=("Impact",30,"bold"),text="Score final : "+str(self.jeu.joueur1.score)+" à "+str(self.jeu.joueur2.score),fill="white")
     
     
-
-#Instanciations
-    #fenetre
-fenetre = Tk()
-fenetre.title("Square Assembler")
-fenetre.resizable(False, False)
-fenetre.geometry("800x600+200+200")
-
-    #Modele   
-nbpartie = 0
-
-jeu = Jeu(2,10)
+            
+    def selectionsize(self):    
+        popup = Toplevel()
+        popup.title("Nouveau")
+        popup.geometry("380x330+200+200")
+        
+        texte = Label(popup,text="Choix des détails de la partie")
+        texte.grid(row=0,column = 1,pady=10)
+        
+        varTaille = StringVar()
+        varJoueurs = StringVar()
+        
+        bouton10=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 10 ,text="10 Cases")
+        bouton10.grid(row=1,column = 0,pady=10,ipadx=20,ipady=20)
+        bouton20=Radiobutton(popup,indicatoron=0, variable = varTaille,value = 20 , text="20 Cases")
+        bouton20.grid(row=1,column = 2,pady=10,ipadx=20,ipady=20)   
+        
+        bouton1p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 1 , text="1 Joueur ")
+        bouton1p.grid(row=2,column = 0,pady=10,ipadx=20,ipady=20)
+        bouton2p=Radiobutton(popup,indicatoron=0, variable = varJoueurs ,value = 2, text="2 Joueurs")
+        bouton2p.grid(row=2,column = 2,pady=10,ipadx=20,ipady=20)
+        
+        labelTemps = Label(popup,text="Temps pour chaque tour (en sec) :\n(Mode 2 Joueurs, Supérieur à 2sec)")
+        labelTemps.grid(row=3,column=1)
+        entryTemps = Entry(popup)
+        entryTemps.grid(row=4,column=1)
     
-    #Canvas
-canvasScore = Canvas(fenetre,width = 180, height = jeu.tab.lignes * jeu.taillecase, bg = "black")
-canvasGame = Canvas(fenetre,width = jeu.tab.colonnes * jeu.taillecase, height = jeu.tab.lignes * jeu.taillecase, bg = "white")
-
-canvasGame.bind("<Button-1>", cliqueGauche)
-
-canvasScore.place()
-canvasScore.config(highlightbackground="Black")
-
-
-canvasGame.pack(side=RIGHT)
-canvasScore.pack(side=TOP,ipady = 100,ipadx = 100)
-
-#Créations des labels
-
-titre = Label(canvasScore,text="SQUARE\n\nASSEMBLER",font=("Impact",26,"bold"),bg="black",fg="white")
-titre.pack(side=TOP,ipady = 100)
-
-labeltimeleft = Label(canvasScore,text=jeu.tempsTour ,font=("Impact",30),bg="black",fg="black")
-labeltimeleft.pack(side=TOP)
-
-labelplayer1 = Label(canvasScore,text=jeu.joueur1.nom+'-',font=("Impact",20),bg="black",fg="black")
-scoring1 = Label(canvasScore,text=jeu.joueur1.score,font=("Impact",20),bg="black",fg="black")
-
-labelplayer1.pack(side=LEFT)
-scoring1.pack(side=LEFT)
-
-labelplayer2 = Label(canvasScore,text=jeu.joueur2.nom+'-',font=("Impact",20),bg="black",fg="black")
-scoring2 = Label(canvasScore,text=jeu.joueur2.score,font=("Impact",20),bg="black",fg="black")
-
-scoring2.pack(side=RIGHT)
-labelplayer2.pack(side=RIGHT)
-
-
-
-#Créations des menus
-
-menubar = Menu(fenetre)
-fenetre.config(menu = menubar)
-
-menufichier = Menu(menubar,tearoff = 0)
-menuanonymat = Menu(menubar,tearoff = 0)
-
-menubar.add_cascade(label="Jeu", menu=menufichier)
-
-menufichier.add_command(label="Nouveau", command = selectionsize)
-menufichier.add_command(label="Quitter", command=fenetre.destroy )
-
-menubar.add_cascade(label="A propos", menu=menuanonymat)
-menuanonymat.add_cascade(label="17820046")
-menuanonymat.add_cascade(label="17820047")
-
-
-#Affichage de la fenêtre
-
-fenetre.mainloop()
-
+        valider=Button(popup, text="Valider", command= lambda:self.start(varTaille.get(),varJoueurs.get(),entryTemps.get(),popup))
+        valider.grid(row=5,column = 1,pady=10,ipadx=25,ipady=15)
+        popup.mainloop()
+        
+        
+    def stop(self):
+        self.c.stop()
+        self.fenetre.destroy()    
+        
+        
+    def readyplayer2(self): 
+        self.drawTable()      
+        self.horloge(self.nbpartie)
+        
+        
+    def joinRoom(self):
+        self.c.runJoin()  
+        self.jeu.nbjoueurs = 2
+        self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
+        self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
+        
+        self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
+        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")            
+        
+        self.labeltimeleft.config(fg="white")
+        
+        self.render()
+        self.horloge(self.nbpartie)
+        
+    
+    def createRoom(self): 
+        self.c.setmodele(self) 
+        self.c.runHost() 
+        
+    
+vue = Vue()
+vue.fenetre.mainloop()
 

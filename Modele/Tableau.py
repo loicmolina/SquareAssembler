@@ -39,7 +39,18 @@ class tableau:
                 nbcouleur =  self.couleurs.select(liste, random.randint(0,liste.__len__()-1))
                 self.tableau[x][y]=nbcouleur
                 
-        
+                
+    def settable(self,newtabstr):
+        newtab = newtabstr.split(("], ["))
+        x=0
+        for listnb in newtab:
+            y=0
+            for nb in listnb.split(", "):
+                self.tableau[x][y]=int(nb) 
+                y+=1        
+            x+=1
+            
+            
     def find(self,x,y,valeur):
         listMove = []
         self.findrec(x,y,valeur,listMove)
@@ -113,6 +124,7 @@ class tableau:
                     if (troisalasuite>=2):
                         restants = restants + 1
         return restants
+    
     
     def continuerjoueur(self,couleurs):
         restants = 0
