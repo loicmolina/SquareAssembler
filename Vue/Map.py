@@ -79,9 +79,6 @@ class Vue:
         self.menuanonymat.add_cascade(label="17820047")
         
         
-        #Affichage de la fenêtre
-        
-        self.c = connection(self)
     
     
     
@@ -96,15 +93,30 @@ class Vue:
     def drawColors(self):
         self.canvasScore.delete("all")
         for i in range(self.jeu.joueur1.couleurs.__len__()):
-            self.canvasScore.create_rectangle(10,450-i*20+1,30,450-(i+1)*20, fill =self.jeu.couleurs.couleur(self.jeu.joueur1.couleurs[i])) 
+            self.canvasScore.create_rectangle(10,460-i*10+1,40,460-(i+1)*10, fill =self.jeu.couleurs.couleur(self.jeu.joueur1.couleurs[i])) 
         
         for i in range(self.jeu.joueur2.couleurs.__len__()):
-            self.canvasScore.create_rectangle(145,450-i*20+1,165,450-(i+1)*20, fill = self.jeu.couleurs.couleur(self.jeu.joueur2.couleurs[i])) 
+            self.canvasScore.create_rectangle(145,460-i*10+1,175,460-(i+1)*10, fill = self.jeu.couleurs.couleur(self.jeu.joueur2.couleurs[i])) 
+            
+        if (self.jeu.gameover >= 0):
+            for i in range(1,int(self.jeu.tab.colonnes/2.5)+1):
+                if (i not in self.jeu.joueur1.couleurs and i not in self.jeu.joueur2.couleurs):
+                    if (i%2 == 0):
+                        self.canvasScore.create_rectangle(78,460-(i-1)*5+1,98,460-i*5, fill = self.jeu.couleurs.valeurs[i]) 
+                    else:
+                        self.canvasScore.create_rectangle(99,460-i*5+1,119,460-(i+1)*5, fill = self.jeu.couleurs.valeurs[i]) 
+                    
             
     
     def drawWaitingForPlayer2(self):
         self.canvasGame.create_rectangle(100,200,500,400,fill="black")
         self.canvasGame.create_text(300,250,font=("Impact",30,"bold"),text="Recherche du Joueur 2",fill="white")      
+        self.canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="En attente...",fill="white")
+        
+        
+    def drawWaitingForPlayer1(self):
+        self.canvasGame.create_rectangle(100,200,500,400,fill="black")
+        self.canvasGame.create_text(300,250,font=("Impact",30,"bold"),text="Recherche du Joueur 1",fill="white")      
         self.canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="En attente...",fill="white")
     
     def start(self,nbCases,nbJoueurs,tempsTour,popup):  
@@ -123,7 +135,6 @@ class Vue:
             
             if (self.jeu.nbjoueurs==2):            
                 self.createRoom()            
-                self.drawWaitingForPlayer2()
                 
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
                 self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
@@ -140,7 +151,7 @@ class Vue:
                 self.labeltimeleft.config(fg="black")
                 
                 self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-                self.scoring2.config(fg= "black")
+                self.render()
             
             popup.destroy()
             
@@ -254,11 +265,11 @@ class Vue:
         
         
     def readyplayer2(self): 
+        self.jeu.gameover = 0
         self.horloge(self.nbpartie)
         
         
-    def joinRoom(self):
-        self.c.runJoin()  
+    def foundplayer1(self):        
         self.jeu.nbjoueurs = 2
         self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
         self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
@@ -271,10 +282,17 @@ class Vue:
         self.render()
         self.horloge(self.nbpartie)
         
+        
+    def joinRoom(self):
+        self.c = connection(self)
+        self.c.runJoin()  
+        self.drawWaitingForPlayer1()
     
     def createRoom(self): 
+        self.c = connection(self)
         self.c.setmodele(self) 
         self.c.runHost() 
+        self.drawWaitingForPlayer2()
         
     
 vue = Vue()

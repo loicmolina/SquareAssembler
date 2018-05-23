@@ -100,10 +100,7 @@ class tableau:
                 if (self.tableau[x][self.colonnes-1] != 0):
                     for y in range(self.lignes):
                         self.tableau[i][y] = self.tableau[x][y]
-                        self.tableau[x][y] = 0
-                        
-        
-                    
+                        self.tableau[x][y] = 0                    
                             
                             
     def continuer(self):

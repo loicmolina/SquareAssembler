@@ -39,9 +39,12 @@ class connection:
             if (IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME == 'Host'):
                 self.sendmsg("size:"+str(self.modele.jeu.tab.colonnes))
                 self.sendmsg("tab:"+str(self.modele.jeu.tab.tableau))
-                self.sendmsg("time:"+str(self.modele.jeu.tempsTourMax)+","+str(self.modele.jeu.tempsTour))
+                self.sendmsg("time:"+str(self.modele.jeu.tempsTourMax))
                 self.modele.readyplayer2()
                 self.modele.render()
+                
+            if (IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME == 'Guest'):
+                self.modele.foundplayer1()
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
         self.info('Ivy applications currently on the bus: %s',','.join(IvyGetApplicationList()))
@@ -64,9 +67,9 @@ class connection:
             #print("tab reçu : "+str(arg)[8:-5])     
             self.modele.jeu.joinTable(str(arg)[8:-5])     
         elif ("time:" in str(arg) and self.IVYAPPNAME == 'Guest'):
-            timers = str(arg)[7:-3].split(",")
+            timer = str(arg)[7:-3]
             #print("temps reçu : "+ timers[0])      
-            self.modele.jeu.setTime(int(timers[0]),int(timers[1]))    
+            self.modele.jeu.setTime(int(timer))    
             self.modele.render()   
         elif ("coup:"in str(arg)):
             pos = str(arg)[7:-3].split(",")
