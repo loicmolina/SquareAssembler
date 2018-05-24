@@ -48,6 +48,7 @@ class Jeu:
         self.tempsTourMax = tpsM
         self.tempsTour = tpsM
         
+        
     def tour(self,x,y):
         listeCases = self.tab.find(x,y,self.tab.tableau[x][y])
         if listeCases.__len__()>=3:            

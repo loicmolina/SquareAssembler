@@ -92,19 +92,20 @@ class Vue:
     
     def drawColors(self):
         self.canvasScore.delete("all")
-        for i in range(self.jeu.joueur1.couleurs.__len__()):
-            self.canvasScore.create_rectangle(10,460-i*10+1,40,460-(i+1)*10, fill =self.jeu.couleurs.couleur(self.jeu.joueur1.couleurs[i])) 
-        
-        for i in range(self.jeu.joueur2.couleurs.__len__()):
-            self.canvasScore.create_rectangle(145,460-i*10+1,175,460-(i+1)*10, fill = self.jeu.couleurs.couleur(self.jeu.joueur2.couleurs[i])) 
+        if (self.jeu.nbjoueurs == 2):
+            for i in range(self.jeu.joueur1.couleurs.__len__()):
+                self.canvasScore.create_rectangle(10,460-i*10+1,40,460-(i+1)*10, fill =self.jeu.couleurs.couleur(self.jeu.joueur1.couleurs[i])) 
             
-        if (self.jeu.gameover >= 0):
-            for i in range(1,int(self.jeu.tab.colonnes/2.5)+1):
-                if (i not in self.jeu.joueur1.couleurs and i not in self.jeu.joueur2.couleurs):
-                    if (i%2 == 0):
-                        self.canvasScore.create_rectangle(78,460-(i-1)*5+1,98,460-i*5, fill = self.jeu.couleurs.valeurs[i]) 
-                    else:
-                        self.canvasScore.create_rectangle(99,460-i*5+1,119,460-(i+1)*5, fill = self.jeu.couleurs.valeurs[i]) 
+            for i in range(self.jeu.joueur2.couleurs.__len__()):
+                self.canvasScore.create_rectangle(145,460-i*10+1,175,460-(i+1)*10, fill = self.jeu.couleurs.couleur(self.jeu.joueur2.couleurs[i])) 
+                
+            if (self.jeu.gameover >= 0):
+                for i in range(1,int(self.jeu.tab.colonnes/2.5)+1):
+                    if (i not in self.jeu.joueur1.couleurs and i not in self.jeu.joueur2.couleurs):
+                        if (i%2 == 0):
+                            self.canvasScore.create_rectangle(78,460-(i-1)*5+1,98,460-i*5, fill = self.jeu.couleurs.valeurs[i]) 
+                        else:
+                            self.canvasScore.create_rectangle(99,460-i*5+1,119,460-(i+1)*5, fill = self.jeu.couleurs.valeurs[i]) 
                     
             
     
@@ -144,13 +145,15 @@ class Vue:
                 
                 self.labeltimeleft.config(fg="white",text=tempsTour)
             else:
-                self.c.stop()
+                self.closeRoom()
+                
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
                 self.labelplayer2.config(fg= "black")
                 
                 self.labeltimeleft.config(fg="black")
                 
                 self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
+                self.scoring2.config(fg= "black")
                 self.render()
             
             popup.destroy()
@@ -264,35 +267,42 @@ class Vue:
         self.fenetre.destroy()    
         
         
-    def readyplayer2(self): 
+    def player2ready(self): 
         self.jeu.gameover = 0
+        self.drawColors()
         self.horloge(self.nbpartie)
         
         
-    def foundplayer1(self):        
+    def player1ready(self):        
         self.jeu.nbjoueurs = 2
         self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
         self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
         
         self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")            
+        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")                        
         
-        self.labeltimeleft.config(fg="white")
-        
+        self.updatescoreboard()
         self.render()
-        self.horloge(self.nbpartie)
         
+        self.labeltimeleft.config(fg="white")    
+        
+        self.horloge(self.nbpartie)
+                
         
     def joinRoom(self):
         self.c = connection(self)
         self.c.runJoin()  
         self.drawWaitingForPlayer1()
+        
     
     def createRoom(self): 
         self.c = connection(self)
-        self.c.setmodele(self) 
-        self.c.runHost() 
+        self.c.runHost(self) 
         self.drawWaitingForPlayer2()
+        
+        
+    def closeRoom(self):
+        self.c.stop()
         
     
 vue = Vue()

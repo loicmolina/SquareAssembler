@@ -40,11 +40,13 @@ class connection:
                 self.sendmsg("size:"+str(self.modele.jeu.tab.colonnes))
                 self.sendmsg("tab:"+str(self.modele.jeu.tab.tableau))
                 self.sendmsg("time:"+str(self.modele.jeu.tempsTourMax))
-                self.modele.readyplayer2()
                 self.modele.render()
+                self.modele.updatescoreboard()
+                self.modele.player2ready()
                 
             if (IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME == 'Guest'):
-                self.modele.foundplayer1()
+                self.modele.player1ready()
+                print("le cul de Mylene")
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
         self.info('Ivy applications currently on the bus: %s',','.join(IvyGetApplicationList()))
@@ -69,15 +71,22 @@ class connection:
         elif ("time:" in str(arg) and self.IVYAPPNAME == 'Guest'):
             timer = str(arg)[7:-3]
             #print("temps reçu : "+ timers[0])      
-            self.modele.jeu.setTime(int(timer))    
+            self.modele.jeu.setTime(int(timer))  
             self.modele.render()   
+            self.modele.updatescoreboard()
         elif ("coup:"in str(arg)):
             pos = str(arg)[7:-3].split(",")
             #print("positions reçus : "+ pos[0]+" "+pos[1])  
-            self.modele.jeu.tour(int(pos[0]),int(pos[1]))
-            self.modele.render()
+            self.turn(int(pos[0]),int(pos[1]))
             
-    
+            
+    def turn(self,x,y):
+        listMove = []
+        valeur = self.modele.jeu.tab.tableau[x][y]
+        self.modele.jeu.tab.findrec(x,y,valeur,listMove)
+        if (listMove.__len__()>=3):
+            self.modele.jeu.tour(x,y)
+            self.modele.render()    
     
     def on_direct_msg(self,agent, num_id, msg):
         self.info('%r sent a direct message, id=%s, message=%s',agent, num_id, msg)    
@@ -98,6 +107,7 @@ class connection:
         from ivy.ivy import ivylogger
         import logging
     
+        self.on_die_accepted = False
         ivybus = ''
         readymsg = '[%s is ready]' % self.IVYAPPNAME
         verbose = 0
@@ -132,8 +142,9 @@ class connection:
         self.run()
         
         
-    def runHost(self):
+    def runHost(self,partie):
         self.IVYAPPNAME = 'Host'
+        self.modele = partie  
         self.run()
         
     
