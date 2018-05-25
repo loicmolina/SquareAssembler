@@ -46,7 +46,6 @@ class connection:
                 
             if (IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME == 'Guest'):
                 self.modele.player1ready()
-                print("le cul de Mylene")
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
         self.info('Ivy applications currently on the bus: %s',','.join(IvyGetApplicationList()))
