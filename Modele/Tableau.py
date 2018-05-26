@@ -9,22 +9,11 @@ from Modele.Dictionnaire import Affectation
 
 class tableau:
     
-    
-    
     def __init__(self):
         self.couleurs = Affectation()
         self.colonnes = 20
         self.lignes = 20  
         self.tableau = [[0 for x in range(self.colonnes)] for y in range(self.lignes)]
-        
-        
-        for x in range(20):
-            for y in range(20):                
-                liste = self.couleurs.couleurs()   
-                nbcouleur =  self.couleurs.select(liste, random.randint(0,liste.__len__()-1))
-                self.tableau[x][y]=nbcouleur
-        
-
 
 
     def resize(self,nb):

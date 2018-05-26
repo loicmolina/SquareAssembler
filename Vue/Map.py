@@ -21,8 +21,7 @@ class Vue:
         self.fenetre.geometry("800x600+200+200")
         
             #Modele   
-        self.nbpartie = 0
-        
+        self.nbpartie = 0        
         self.jeu = Jeu(1,10)
         
             #Canvas
@@ -31,7 +30,6 @@ class Vue:
         
         self.canvasGame.bind("<Button-1>", self.cliqueGauche)
         
-        self.canvasScore.place()
         self.canvasScore.config(highlightbackground="Black")
         
         
@@ -130,23 +128,27 @@ class Vue:
             
             self.jeu = Jeu(int(nbJoueurs),tps)   
             self.jeu.newTable(int(nbCases))
-            self.nbpartie = self.nbpartie +1        
-            
-            
+            self.nbpartie = self.nbpartie +1                    
             
             if (self.jeu.nbjoueurs==2):      
-                self.createRoom()            
+                self.createRoom()                    
                 
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
                 self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
                 
                 self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-                self.scoring2.config(text = self.jeu.joueur2.score,fg="white")            
+                self.scoring2.config(text = self.jeu.joueur2.score,fg="white")   
+                
+                if self.c.IVYAPPNAME == 'Host':                     
+                    self.labelplayer2.config(fg="grey")            
+                    self.scoring2.config(fg="grey")
+                         
                 
                 self.labeltimeleft.config(fg="white",text=tempsTour)
             else:
                 self.closeRoom()
                 
+                     
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
                 self.labelplayer2.config(fg= "black")
                 
@@ -275,11 +277,19 @@ class Vue:
         
     def player1ready(self):        
         self.jeu.nbjoueurs = 2
+        self.nbpartie = self.nbpartie +1    
+        
         self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
         self.labelplayer2.config(text = self.jeu.joueur2.nom+'-',fg="white")
+
         
         self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")                        
+        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")                 
+        
+        
+        if self.c.IVYAPPNAME == 'Guest':                     
+            self.labelplayer1.config(fg="grey")            
+            self.scoring1.config(fg="grey")
         
         self.updatescoreboard()
         self.render()

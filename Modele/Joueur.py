@@ -4,9 +4,8 @@ Created on 8 mai 2018
 @author: Loic
 '''
 class Joueur:
-    def __init__(self,nomJoueur,valeurJoueur):
+    def __init__(self,nomJoueur):
         self.nom = nomJoueur
-        self.valeur = valeurJoueur
         self.score = 0
         self.restants = 100
         self.couleurs = []

@@ -12,8 +12,8 @@ class Jeu:
     def __init__(self,nbJoueurs,tempsMaxTour):
         self.tab = tableau()
         self.gameover = -1  
-        self.joueur1 = Joueur("J1",1)
-        self.joueur2 = Joueur("J2",2)
+        self.joueur1 = Joueur("J1")
+        self.joueur2 = Joueur("J2")
         self.nbjoueurs = nbJoueurs
         self.tempsTourMax = tempsMaxTour
         self.tempsTour = self.tempsTourMax
