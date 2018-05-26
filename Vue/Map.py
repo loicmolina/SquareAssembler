@@ -80,7 +80,7 @@ class Vue:
         
         
     
-    
+        self.c = connection(self)
     
     
     def drawTable(self):  
@@ -134,7 +134,7 @@ class Vue:
             
             
             
-            if (self.jeu.nbjoueurs==2):            
+            if (self.jeu.nbjoueurs==2):      
                 self.createRoom()            
                 
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
@@ -289,13 +289,15 @@ class Vue:
         self.horloge(self.nbpartie)
                 
         
-    def joinRoom(self):
+    def joinRoom(self):   
+        self.closeRoom()      
         self.c = connection(self)
         self.c.runJoin()  
         self.drawWaitingForPlayer1()
         
     
-    def createRoom(self): 
+    def createRoom(self):    
+        self.closeRoom()      
         self.c = connection(self)
         self.c.runHost(self) 
         self.drawWaitingForPlayer2()

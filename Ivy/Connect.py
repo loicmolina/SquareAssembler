@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 """An ivyprobe script for ivy-python
 """
-import getopt
 import os
 import signal
 import sys
-import time, getopt, queue
-import random
-from random import randint
-from asyncio.tasks import sleep
-from Modele import Jeu
 sys.path.append("D:\Programmes\ivy-python-3.1")
 from ivy.std_api import *
 
@@ -89,15 +83,12 @@ class connection:
     
     def on_direct_msg(self,agent, num_id, msg):
         self.info('%r sent a direct message, id=%s, message=%s',agent, num_id, msg)    
-    
-    def on_pong(self,agent, delta):
-        self.info('%s answered to ping in %fs', agent, delta)
         
     def sendmsg(self,texte):        
         IvySendMsg(texte)
         
     def stop(self):
-        if (self.IVYAPPNAME != ""):
+        if not self.on_die_accepted and self.IVYAPPNAME!="":
             IvyStop()
         self.on_die_accepted = False
         self.IVYAPPNAME = ""
@@ -128,9 +119,6 @@ class connection:
     
         # direct msg
         IvyBindDirectMsg(self.on_direct_msg)
-    
-        # pong
-        IvyBindPong(self.on_pong)    
         
         #Bind
         IvyBindMsg(self.on_msg, "(.*)")
