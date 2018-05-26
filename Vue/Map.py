@@ -145,10 +145,9 @@ class Vue:
                          
                 
                 self.labeltimeleft.config(fg="white",text=tempsTour)
-            else:
+            else:   
                 self.closeRoom()
-                
-                     
+                                  
                 self.labelplayer1.config(text = '>'+self.jeu.joueur1.nom+'-',fg="white")
                 self.labelplayer2.config(fg= "black")
                 
@@ -273,6 +272,7 @@ class Vue:
         self.jeu.gameover = 0
         self.drawColors()
         self.horloge(self.nbpartie)
+        print("La partie peut commencer pour P2R :"+self.c.IVYAPPNAME)
         
         
     def player1ready(self):        
@@ -284,7 +284,8 @@ class Vue:
 
         
         self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")                 
+        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")  
+        print("La partie peut commencer pour P1R :"+self.c.IVYAPPNAME)               
         
         
         if self.c.IVYAPPNAME == 'Guest':                     
@@ -299,22 +300,32 @@ class Vue:
         self.horloge(self.nbpartie)
                 
         
-    def joinRoom(self):   
-        self.closeRoom()      
-        self.c = connection(self)
-        self.c.runJoin()  
-        self.drawWaitingForPlayer1()
+    def joinRoom(self):
+        print("Tentative d'accès à une room pour "+self.c.IVYAPPNAME)   
+        if (self.c.IVYAPPNAME != "Guest"):
+            self.nbpartie = self.nbpartie +1            
+            
+            self.canvasGame.delete("all")
+            self.drawWaitingForPlayer1()
+            
+                 
+            self.closeRoom()      
+            self.c.runJoin()  
+            print("Room accédée par "+self.c.IVYAPPNAME) 
         
     
-    def createRoom(self):    
-        self.closeRoom()      
-        self.c = connection(self)
-        self.c.runHost(self) 
+    def createRoom(self):     
+        print("Création d'une room pour "+self.c.IVYAPPNAME)   
+        self.canvasGame.delete("all")
         self.drawWaitingForPlayer2()
         
+        self.closeRoom()      
+        self.c.runHost(self) 
+        print("Room créé pour "+self.c.IVYAPPNAME)          
         
-    def closeRoom(self):
+    def closeRoom(self):  
         self.c.stop()
+        
         
     
 vue = Vue()
