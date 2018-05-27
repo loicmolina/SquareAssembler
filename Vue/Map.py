@@ -118,6 +118,11 @@ class Vue:
         self.canvasGame.create_text(300,250,font=("Impact",30,"bold"),text="Recherche du Joueur 1",fill="white")      
         self.canvasGame.create_text(300,350,font=("Impact",30,"bold"),text="En attente...",fill="white")
     
+    def drawInstanceAlreadyExists(self):
+        self.canvasGame.create_rectangle(100,200,500,400,fill="black")
+        self.canvasGame.create_text(300,250,font=("Impact",27,"bold"),text="Instance similaire\n  déjà en cours",fill="white")      
+        self.canvasGame.create_text(300,350,font=("Impact",26,"bold"),text="Réessayez plus tard",fill="white")
+    
     def start(self,nbCases,nbJoueurs,tempsTour,popup):  
         try:
             tps = int(tempsTour)
@@ -303,12 +308,12 @@ class Vue:
             self.nbpartie = self.nbpartie +1            
             
             self.canvasGame.delete("all")
-            self.drawWaitingForPlayer1()
-            
+            self.drawWaitingForPlayer1()            
                  
             self.closeRoom()      
             self.c.runJoin()  
-        
+            self.c.sendmsg("asking")      
+            
     
     def createRoom(self):     
         self.canvasGame.delete("all")

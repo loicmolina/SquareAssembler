@@ -91,8 +91,6 @@ class Jeu:
                 #print("l'adversaire ",self.joueurAdverse.nom," ses couleurs sont ",self.joueurAdverse.couleurs)
         
             
-                
-
 
     def changerjoueur(self):
         if self.joueurTour.nom == self.joueur1.nom:

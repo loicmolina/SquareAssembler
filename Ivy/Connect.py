@@ -56,17 +56,12 @@ class connection:
         self.sendmsg("time:"+str(self.game.jeu.tempsTourMax))
     
     def on_connection_change(self,agent, event):
+        
         if event == IvyApplicationDisconnected:
             self.info('Ivy application %r has disconnected', agent)
 
         else:
             self.info('Ivy application %r has connected', agent) 
-            if self.name=="Host" and self.matefound==False:
-                print("je communique mon nom : "+self.name )
-                self.sendmsg("nom:"+self.name)  
-            if (self.name == 'Guest' and self.matefound == False):
-                print("je demande un nom")
-                self.sendmsg("asking")  
                 
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
@@ -88,8 +83,14 @@ class connection:
             #print("size reçu : "+str(arg)[7:-3])
             self.game.jeu = Jeu(2,10)
             self.game.jeu.newTable(int(str(arg)[7:-3]))
-        elif "asking" in str(arg) and self.name == 'Guest' and self.matefound==False:
-             self.sendmsg("nom:"+self.name) 
+        elif "asking" in str(arg) and self.name == 'Host' and self.matefound==False:
+            self.sendmsg("nom:"+self.name) 
+        elif ("asking" in str(arg) and self.name == "Guest") or ("Host" in  str(arg) and self.name == "Host"):
+            self.sendmsg("forcequit")
+        elif ("forcequit" in str(arg) and self.matefound == False):
+            self.game.drawInstanceAlreadyExists()
+            self.stop()
+             
         elif "nom:" in str(arg) and self.matefound == False: 
             if self.name == 'Guest' and str(arg)[6:-3] == "Host" :
                 self.sendmsg("nom:"+self.name)  
@@ -143,24 +144,29 @@ class connection:
                 self.sendmsg("end")      
             self.on_die_accepted = False
             self.name=""
+        
     
     def run(self):       
         # starting the bus
         print("taille liste avant :"+str(IvyGetApplicationList().__len__()))
         print("nouveau nom :"+self.name)
         IvyStart(self.ivybus)
-        
-       
-      
+             
             
             
-    def runJoin(self):        
+    def runJoin(self):     
+        import time   
         self.name = "Guest"
-        self.run()        
+        self.run()      
+        time.sleep(0.1)
+        self.sendmsg("asking")  
         
-    def runHost(self,partie):
+    def runHost(self,partie):   
+        import time  
         self.name = "Host"
         self.game = partie  
         self.run()
+        time.sleep(0.1)
+        self.sendmsg("nom:"+self.name)  
     
         
