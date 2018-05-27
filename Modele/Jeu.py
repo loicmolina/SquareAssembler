@@ -40,8 +40,8 @@ class Jeu:
         self.taillecase = 600/self.tab.lignes
         self.joueurTour.restants = 100
         self.joueurAdverse.restants = 100
-        self.joueur1.score = 0
-        self.joueur2.score = 0        
+        self.joueur1.resetplayer()
+        self.joueur2.resetplayer()
         
         
     def setTime(self,tpsM):
@@ -62,7 +62,9 @@ class Jeu:
                 self.joueurTour.score = self.joueurTour.score + listeCases.__len__()              
                 self.tab.chutevertical()
                 self.tab.chutehorizontal()
-                self.conditionsfin()     
+                self.conditionsfin()  
+                return True
+        return False   
 
                         
                 

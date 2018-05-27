@@ -139,7 +139,7 @@ class Vue:
                 self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
                 self.scoring2.config(text = self.jeu.joueur2.score,fg="white")   
                 
-                if self.c.IVYAPPNAME == 'Host':                     
+                if self.c.name == 'Host':                     
                     self.labelplayer2.config(fg="grey")            
                     self.scoring2.config(fg="grey")
                          
@@ -162,12 +162,12 @@ class Vue:
             
     
     def cliqueGauche(self,event):   
-        if (self.jeu.gameover == 0 and (self.jeu.nbjoueurs==1 or((self.c.IVYAPPNAME == 'Guest' and self.jeu.joueurTour==self.jeu.joueur2) or (self.c.IVYAPPNAME == 'Host' and self.jeu.joueurTour==self.jeu.joueur1)))):
+        if (self.jeu.gameover == 0 and (self.jeu.nbjoueurs==1 or((self.c.name == 'Guest' and self.jeu.joueurTour==self.jeu.joueur2) or (self.c.name == 'Host' and self.jeu.joueurTour==self.jeu.joueur1)))):
             x = int(event.x/self.jeu.taillecase)
             y = int(event.y/self.jeu.taillecase) 
-            if (self.jeu.nbjoueurs == 2):
-                self.c.sendmsg("coup:"+str(x)+","+str(y)) 
-            self.jeu.tour(x, y)   
+            coup = self.jeu.tour(x, y)  
+            if (coup and self.jeu.nbjoueurs == 2):
+                self.c.sendmsg("coup:"+str(x)+","+str(y))  
             self.drawTable() 
             self.drawColors()    
             self.updatescoreboard()  
@@ -268,14 +268,13 @@ class Vue:
         self.fenetre.destroy()    
         
         
-    def player2ready(self): 
+    def player1ready(self): 
         self.jeu.gameover = 0
         self.drawColors()
         self.horloge(self.nbpartie)
-        print("La partie peut commencer pour P2R :"+self.c.IVYAPPNAME)
         
         
-    def player1ready(self):        
+    def player2ready(self):        
         self.jeu.nbjoueurs = 2
         self.nbpartie = self.nbpartie +1    
         
@@ -284,11 +283,10 @@ class Vue:
 
         
         self.scoring1.config(text = self.jeu.joueur1.score,fg="white")
-        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")  
-        print("La partie peut commencer pour P1R :"+self.c.IVYAPPNAME)               
+        self.scoring2.config(text = self.jeu.joueur2.score,fg="white")             
         
         
-        if self.c.IVYAPPNAME == 'Guest':                     
+        if self.c.name == 'Guest':                     
             self.labelplayer1.config(fg="grey")            
             self.scoring1.config(fg="grey")
         
@@ -301,8 +299,7 @@ class Vue:
                 
         
     def joinRoom(self):
-        print("Tentative d'accès à une room pour "+self.c.IVYAPPNAME)   
-        if (self.c.IVYAPPNAME != "Guest"):
+        if (self.c.name != "Guest"):
             self.nbpartie = self.nbpartie +1            
             
             self.canvasGame.delete("all")
@@ -311,17 +308,14 @@ class Vue:
                  
             self.closeRoom()      
             self.c.runJoin()  
-            print("Room accédée par "+self.c.IVYAPPNAME) 
         
     
     def createRoom(self):     
-        print("Création d'une room pour "+self.c.IVYAPPNAME)   
         self.canvasGame.delete("all")
         self.drawWaitingForPlayer2()
         
         self.closeRoom()      
-        self.c.runHost(self) 
-        print("Room créé pour "+self.c.IVYAPPNAME)          
+        self.c.runHost(self)     
         
     def closeRoom(self):  
         self.c.stop()

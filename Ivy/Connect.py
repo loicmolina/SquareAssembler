@@ -13,7 +13,8 @@ from ivy.std_api import *
 class connection:
     
     def __init__(self,partie):    
-        self.IVYAPPNAME = ""
+        self.IVYAPPNAME = "IvyApp"
+        self.name = ""
         self.game = partie  
         self.on_die_accepted = False
         self.matefound = False
@@ -24,7 +25,7 @@ class connection:
 
         self.on_die_accepted = False
         self.ivybus = ''
-        readymsg = '[%s is ready]' % self.IVYAPPNAME
+        self.readymsg = '[%s is ready]' % self.IVYAPPNAME
         
         ivylogger.setLevel(logging.WARN)    
     
@@ -32,7 +33,7 @@ class connection:
         
         # initialising the bus 
         IvyInit(self.IVYAPPNAME,             # application name for Ivy
-                readymsg,               # ready message
+                self.readymsg,               # ready message
                 0,                      # parameter ignored
                 self.on_connection_change,   # handler called on connection/disconnection
                 self.on_die)                 # handler called when a die msg is received
@@ -46,8 +47,7 @@ class connection:
 
 
     def info(self,fmt, *arg):
-        1
-        #print(fmt % arg)
+        print(fmt % arg)
         
         
     def sendDataToGuest(self):
@@ -60,10 +60,13 @@ class connection:
             self.info('Ivy application %r has disconnected', agent)
 
         else:
-            self.info('Ivy application %r has connected', agent)
-            if (IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME == 'Host'):
-                self.sendmsg("nom:"+self.IVYAPPNAME)
-                print("ENVOI DE TENTATIVE D'AMMARAGE")
+            self.info('Ivy application %r has connected', agent) 
+            if self.name=="Host" and self.matefound==False:
+                print("je communique mon nom : "+self.name )
+                self.sendmsg("nom:"+self.name)  
+            if (self.name == 'Guest' and self.matefound == False):
+                print("je demande un nom")
+                self.sendmsg("asking")  
                 
                 
         #print("il y a ",IvyGetApplicationList().__len__()," dans le bus")
@@ -81,90 +84,82 @@ class connection:
     
     def on_msg(self,agent, *arg):
         self.info('Received from %r: %s', agent, arg and str(arg) or '<no args>')        
-        if ("size:" in str(arg) and self.IVYAPPNAME == 'Guest'):
+        if ("size:" in str(arg) and self.name == 'Guest' and self.matefound):
             #print("size reçu : "+str(arg)[7:-3])
             self.game.jeu = Jeu(2,10)
             self.game.jeu.newTable(int(str(arg)[7:-3]))
-            
-        elif "nom:" in str(arg): 
-            if self.IVYAPPNAME == 'Guest' and str(arg)[6:-3] == "Host":
-                print("Coéquipié trouvé")
-                self.sendmsg("nom:"+self.IVYAPPNAME)  
+        elif "asking" in str(arg) and self.name == 'Guest' and self.matefound==False:
+             self.sendmsg("nom:"+self.name) 
+        elif "nom:" in str(arg) and self.matefound == False: 
+            if self.name == 'Guest' and str(arg)[6:-3] == "Host" :
+                self.sendmsg("nom:"+self.name)  
                 self.matefound = True
-                self.game.player1ready()
+                self.game.player2ready()
                     
-            if self.IVYAPPNAME == 'Host' and (str(arg)[6:-3] == "Guest"):
-                print("Coéquipié trouvé")
+            if self.name == 'Host' and (str(arg)[6:-3] == "Guest"):
                 self.sendDataToGuest()
                 self.game.render()
                 self.game.updatescoreboard()
                 self.matefound = True
-                self.game.player2ready() 
+                self.game.player1ready() 
+                print("_____________________________________________")
                     
-        elif ("tab:" in str(arg) and self.IVYAPPNAME == 'Guest'):
+        elif ("tab:" in str(arg) and self.name == 'Guest' and self.matefound):
             #print("tab reçu : "+str(arg)[8:-5])     
             self.game.jeu.joinTable(str(arg)[8:-5])     
             
-        elif ("time:" in str(arg) and self.IVYAPPNAME == 'Guest'):   
+        elif ("time:" in str(arg) and self.name == 'Guest' and self.matefound):   
             self.game.jeu.setTime(int(str(arg)[7:-3]))  
             self.game.render()   
             self.game.updatescoreboard()
+            print("_____________________________________________")
             
-        elif ("coup:"in str(arg)):
+        elif ("coup:"in str(arg) and self.matefound):
             pos = str(arg)[7:-3].split(",")
             #print("positions reçus : "+ pos[0]+" "+pos[1])  
-            self.turn(int(pos[0]),int(pos[1]))
+            self.game.jeu.tour(int(pos[0]),int(pos[1]))
+            self.game.render()            
             self.game.updatescoreboard()
             
-        elif ("end" in str(arg)):
-            if (self.matefound == True):
-                self.matefound = False
-                self.game.fin()
-                self.stop()
-            
-            
-    def turn(self,x,y):
-        listMove = []
-        valeur = self.game.jeu.tab.tableau[x][y]
-        self.game.jeu.tab.findrec(x,y,valeur,listMove)
-        if (listMove.__len__()>=3):
-            self.game.jeu.tour(x,y)
-            self.game.render()    
-    
+        elif ("end" in str(arg) and self.matefound):
+            print("ENDO pour "+self.name)
+            self.matefound = False
+            self.game.fin()
+            self.stop()
+        
     def on_direct_msg(self,agent, num_id, msg):
         self.info('%r sent a direct message, id=%s, message=%s',agent, num_id, msg)    
         
-    def sendmsg(self,texte):        
+    def sendmsg(self,texte):  
+        print("envoi de "+texte)      
         IvySendMsg(texte)
         
     def stop(self):
-        if not self.on_die_accepted and self.IVYAPPNAME!="":            
-            IvyStop()
-            self.sendmsg("end")   
-        self.on_die_accepted = False
-        self.IVYAPPNAME=""
+        if not self.on_die_accepted and self.name!="": 
+            print("Le client se ferme")               
+            IvyStop()   
+            if (self.matefound):         
+                self.matefound = False              
+                self.sendmsg("end")      
+            self.on_die_accepted = False
+            self.name=""
     
     def run(self):       
         # starting the bus
-        print("RUN POUR : "+self.IVYAPPNAME)
+        print("taille liste avant :"+str(IvyGetApplicationList().__len__()))
+        print("nouveau nom :"+self.name)
         IvyStart(self.ivybus)
-
-        if IvyGetApplicationList().__len__()==2:
-            self.stop()
-            
-        print("LONGUEUR LISTE : "+ str(IvyGetApplicationList().__len__()))
-        if IvyGetApplicationList().__len__()==1 and self.IVYAPPNAME=="Host":
-            self.sendmsg("nom:"+self.IVYAPPNAME)    
-            print("ENVOI DE TENTATIVE D'AMMARAGE")       
+        
+       
       
             
             
     def runJoin(self):        
-        self.IVYAPPNAME = "Guest"
+        self.name = "Guest"
         self.run()        
         
     def runHost(self,partie):
-        self.IVYAPPNAME = "Host"
+        self.name = "Host"
         self.game = partie  
         self.run()
     

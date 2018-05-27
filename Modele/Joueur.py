@@ -15,3 +15,8 @@ class Joueur:
         
     def setScore(self,scr):
         self.score = scr
+        
+    def resetplayer(self):
+        self.score = 0
+        self.restants = 100
+        self.couleurs = []
