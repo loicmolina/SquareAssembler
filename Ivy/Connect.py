@@ -47,7 +47,8 @@ class connection:
 
 
     def info(self,fmt, *arg):
-        print(fmt % arg)
+        1
+        #print(fmt % arg)
         
         
     def sendDataToGuest(self):
@@ -74,9 +75,6 @@ class connection:
         # will interrupt the raw_input()/input() in the main loop, below
         os.kill(os.getpid(), signal.SIGINT)
         
-    def getnbautres(self):
-        return IvyGetApplicationList().__len__()    
-    
     def on_msg(self,agent, *arg):
         self.info('Received from %r: %s', agent, arg and str(arg) or '<no args>')        
         if ("size:" in str(arg) and self.name == 'Guest' and self.matefound):
@@ -103,7 +101,7 @@ class connection:
                 self.game.updatescoreboard()
                 self.matefound = True
                 self.game.player1ready() 
-                print("_____________________________________________")
+                #print("_____________________________________________")
                     
         elif ("tab:" in str(arg) and self.name == 'Guest' and self.matefound):
             #print("tab reçu : "+str(arg)[8:-5])     
@@ -113,7 +111,7 @@ class connection:
             self.game.jeu.setTime(int(str(arg)[7:-3]))  
             self.game.render()   
             self.game.updatescoreboard()
-            print("_____________________________________________")
+            #print("_____________________________________________")
             
         elif ("coup:"in str(arg) and self.matefound):
             pos = str(arg)[7:-3].split(",")
@@ -123,7 +121,7 @@ class connection:
             self.game.updatescoreboard()
             
         elif ("end" in str(arg) and self.matefound):
-            print("ENDO pour "+self.name)
+            #print("END pour "+self.name)
             self.matefound = False
             self.game.fin()
             self.stop()
@@ -132,12 +130,12 @@ class connection:
         self.info('%r sent a direct message, id=%s, message=%s',agent, num_id, msg)    
         
     def sendmsg(self,texte):  
-        print("envoi de "+texte)      
+        #print("envoi de "+texte)      
         IvySendMsg(texte)
         
     def stop(self):
         if not self.on_die_accepted and self.name!="": 
-            print("Le client se ferme")               
+            #print("Le client se ferme")               
             IvyStop()   
             if (self.matefound):         
                 self.matefound = False              
@@ -148,8 +146,8 @@ class connection:
     
     def run(self):       
         # starting the bus
-        print("taille liste avant :"+str(IvyGetApplicationList().__len__()))
-        print("nouveau nom :"+self.name)
+        #print("taille liste avant :"+str(IvyGetApplicationList().__len__()))
+        #print("nouveau nom :"+self.name)
         IvyStart(self.ivybus)
              
             

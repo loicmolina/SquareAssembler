@@ -120,8 +120,13 @@ class Vue:
     
     def drawInstanceAlreadyExists(self):
         self.canvasGame.create_rectangle(100,200,500,400,fill="black")
-        self.canvasGame.create_text(300,250,font=("Impact",27,"bold"),text="Instance similaire\n  déjà en cours",fill="white")      
+        self.canvasGame.create_text(300,250,font=("Impact",27,"bold"),text="Instance similaire\n    déjà en cours",fill="white")      
         self.canvasGame.create_text(300,350,font=("Impact",26,"bold"),text="Réessayez plus tard",fill="white")
+        self.labelplayer1.config(fg="black")
+        self.labelplayer2.config(fg="black")
+        self.scoring1.config(fg="black")
+        self.scoring2.config(fg="black")
+        self.labeltimeleft.config(fg="black")
     
     def start(self,nbCases,nbJoueurs,tempsTour,popup):  
         try:
